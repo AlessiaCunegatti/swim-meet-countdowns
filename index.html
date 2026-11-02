@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swim Meet Countdown</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <p class="eyebrow">SWIM &amp; DIVE</p>
+    <h1>Meet Countdown</h1>
+    <p class="intro">Get ready for race day. Add your next meet below.</p>
+
+    <form id="meet-form" class="form">
+      <label for="meet-name">Meet name</label>
+      <input id="meet-name" type="text" placeholder="e.g. Homecoming Invitational" required>
+
+      <label for="meet-date">Meet date and time</label>
+      <input id="meet-date" type="datetime-local" required>
+
+      <button type="submit">Start countdown</button>
+    </form>
+
+    <section id="countdown-card" class="countdown-card" aria-live="polite">
+      <h2 id="event-title">Your next meet</h2>
+      <p id="event-date" class="event-date">Choose a meet to begin.</p>
+      <div class="countdown" aria-label="Time remaining">
+        <div><span id="days">--</span><small>Days</small></div>
+        <div><span id="hours">--</span><small>Hours</small></div>
+        <div><span id="minutes">--</span><small>Minutes</small></div>
+        <div><span id="seconds">--</span><small>Seconds</small></div>
+      </div>
+      <p id="status" class="status">Your countdown will appear here.</p>
+    </section>
+
+    <p class="footer">A beginner coding project built with HTML, CSS, and JavaScript.</p>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

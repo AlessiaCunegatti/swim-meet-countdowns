@@ -1,169 +1,114 @@
-
-const form = document.querySelector("#meet-form");
-const nameInput = document.querySelector("#meet-name");
-
-const eventTitle = document.querySelector("#event-title");
-const eventDate = document.querySelector("#event-date");
-const statusText = document.querySelector("#status");
-
-const timeFields = {
-  days: document.querySelector("#days"),
-  hours: document.querySelector("#hours"),
-  minutes: document.querySelector("#minutes"),
-  seconds: document.querySelector("#seconds")
-};
-
-// Your 2026-2027 swimming and diving schedule
 const meets = {
-  tyr: {
-    name: "TYR '85 Invite",
-    date: "2026-11-20",
-    time: "09:00"
+  "tyr": {
+    name: "TYR '85 INVITE",
+    date: "2026-11-20T09:00:00"
   },
 
-  gs: {
+  "georgia-dec": {
     name: "Georgia Southern",
-    date: "2026-12-10"
+    date: "2026-12-10T09:00:00"
   },
 
-  queens: {
+  "queens": {
     name: "Queens (Diving)",
-    date: "2027-01-08"
+    date: "2027-01-08T09:00:00"
   },
 
-  gw: {
+  "gardner-webb": {
     name: "Gardner-Webb (Swimming)",
-    date: "2027-01-09"
+    date: "2027-01-09T09:00:00"
   },
 
-  gsd: {
+  "georgia-jan": {
     name: "Georgia Southern (Diving)",
-    date: "2027-01-15"
+    date: "2027-01-15T09:00:00"
   },
 
-  uncp: {
+  "unc-pembroke": {
     name: "UNC Pembroke",
-    date: "2027-01-23"
+    date: "2027-01-23T09:00:00"
   },
 
-  asun: {
+  "asun": {
     name: "ASUN Conference Championships",
-    date: "2027-02-17"
+    date: "2027-02-17T09:00:00"
   }
 };
 
-let selectedMeet = null;
-let timerId = null;
+const meetSelect = document.getElementById("meet-name");
+const meetTitle = document.getElementById("meet-title");
+const meetDate = document.getElementById("meet-date");
+const daysDisplay = document.getElementById("days");
+const hoursDisplay = document.getElementById("hours");
+const minutesDisplay = document.getElementById("minutes");
+const secondsDisplay = document.getElementById("seconds");
+const message = document.getElementById("message");
 
-form.addEventListener("submit", function(event) {
-  event.preventDefault();
+let countdownInterval;
 
-  const meet = meets[nameInput.value];
+function updateCountdown() {
+  const selectedMeet = meets[meetSelect.value];
 
-  if (!meet) {
-    statusText.textContent = "Please select a meet.";
+  if (!selectedMeet) {
+    meetTitle.textContent = "Your next meet";
+    meetDate.textContent = "Select a meet to begin.";
+
+    daysDisplay.textContent = "0";
+    hoursDisplay.textContent = "00";
+    minutesDisplay.textContent = "00";
+    secondsDisplay.textContent = "00";
+
+    message.textContent = "Pick a meet from the dropdown above.";
     return;
   }
 
-  selectedMeet = meet;
+  const targetDate = new Date(selectedMeet.date);
+  const now = new Date();
+  const difference = targetDate.getTime() - now.getTime();
 
-  eventTitle.textContent = meet.name;
-
-  eventDate.textContent = new Date(
-    meet.date + "T12:00:00"
-  ).toLocaleDateString(undefined, {
-    dateStyle: "full"
+  meetTitle.textContent = selectedMeet.name;
+  meetDate.textContent = targetDate.toLocaleString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
   });
 
-  if (meet.time) {
-    eventDate.textContent += " at " + meet.time;
+  if (difference <= 0) {
+    daysDisplay.textContent = "0";
+    hoursDisplay.textContent = "00";
+    minutesDisplay.textContent = "00";
+    secondsDisplay.textContent = "00";
+
+    message.textContent = "This meet has started or has already happened!";
+    return;
   }
 
-  if (timerId) {
-    clearInterval(timerId);
-  }
+  const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+  const hours = Math.floor(
+    (difference / (1000 * 60 * 60)) % 24
+  );
+  const minutes = Math.floor(
+    (difference / (1000 * 60)) % 60
+  );
+  const seconds = Math.floor(
+    (difference / 1000) % 60
+  );
 
-  updateCountdown();
+  daysDisplay.textContent = days;
+  hoursDisplay.textContent = String(hours).padStart(2, "0");
+  minutesDisplay.textContent = String(minutes).padStart(2, "0");
+  secondsDisplay.textContent = String(seconds).padStart(2, "0");
 
-  timerId = setInterval(updateCountdown, 1000);
-});
-
-function updateCountdown() {
-  if (!selectedMeet) return;
-
-  const now = new Date();
-
-  // If the meet time is known, count down to the exact time.
-  if (selectedMeet.time) {
-
-    const target = new Date(
-      selectedMeet.date + "T" +
-      selectedMeet.time + ":00"
-    );
-
-    const difference = target - now;
-
-    if (difference <= 0) {
-      statusText.textContent =
-        "It's meet time! Good luck!";
-
-      clearInterval(timerId);
-      return;
-    }
-
-    const totalSeconds =
-      Math.floor(difference / 1000);
-
-    timeFields.days.textContent =
-      Math.floor(totalSeconds / 86400);
-
-    timeFields.hours.textContent =
-      Math.floor((totalSeconds % 86400) / 3600);
-
-    timeFields.minutes.textContent =
-      Math.floor((totalSeconds % 3600) / 60);
-
-    timeFields.seconds.textContent =
-      totalSeconds % 60;
-
-    statusText.textContent =
-      "Time until race day:";
-
-  } else {
-
-    // For meets without a confirmed start time,
-    // display the number of calendar days remaining.
-
-    const today = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
-    );
-
-    const meetDay = new Date(
-      selectedMeet.date + "T00:00:00"
-    );
-
-    const daysRemaining = Math.ceil(
-      (meetDay - today) / 86400000
-    );
-
-    if (daysRemaining < 0) {
-      statusText.textContent =
-        "This meet has already taken place.";
-
-      return;
-    }
-
-    timeFields.days.textContent =
-      daysRemaining;
-
-    timeFields.hours.textContent = "--";
-    timeFields.minutes.textContent = "--";
-    timeFields.seconds.textContent = "--";
-
-    statusText.textContent =
-      "Days until the meet. Start time not yet provided.";
-  }
+  message.textContent = "Time left until your meet!";
 }
 
+meetSelect.addEventListener("change", function () {
+  clearInterval(countdownInterval);
+  updateCountdown();
+  countdownInterval = setInterval(updateCountdown, 1000);
+});
+
+updateCountdown();

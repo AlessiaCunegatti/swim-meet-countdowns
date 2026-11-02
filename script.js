@@ -1,6 +1,6 @@
+
 const form = document.querySelector("#meet-form");
 const nameInput = document.querySelector("#meet-name");
-const dateInput = document.querySelector("#meet-date");
 
 const eventTitle = document.querySelector("#event-title");
 const eventDate = document.querySelector("#event-date");
@@ -13,64 +13,157 @@ const timeFields = {
   seconds: document.querySelector("#seconds")
 };
 
-let meetTime = null;
+// Your 2026-2027 swimming and diving schedule
+const meets = {
+  tyr: {
+    name: "TYR '85 Invite",
+    date: "2026-11-20",
+    time: "09:00"
+  },
+
+  gs: {
+    name: "Georgia Southern",
+    date: "2026-12-10"
+  },
+
+  queens: {
+    name: "Queens (Diving)",
+    date: "2027-01-08"
+  },
+
+  gw: {
+    name: "Gardner-Webb (Swimming)",
+    date: "2027-01-09"
+  },
+
+  gsd: {
+    name: "Georgia Southern (Diving)",
+    date: "2027-01-15"
+  },
+
+  uncp: {
+    name: "UNC Pembroke",
+    date: "2027-01-23"
+  },
+
+  asun: {
+    name: "ASUN Conference Championships",
+    date: "2027-02-17"
+  }
+};
+
+let selectedMeet = null;
 let timerId = null;
 
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", function(event) {
   event.preventDefault();
 
-  const enteredName = nameInput.value.trim();
-  const enteredDate = new Date(dateInput.value);
+  const meet = meets[nameInput.value];
 
-  if (!enteredName || Number.isNaN(enteredDate.getTime())) {
-    statusText.textContent = "Please enter a meet name and a valid date.";
+  if (!meet) {
+    statusText.textContent = "Please select a meet.";
     return;
   }
 
-  if (enteredDate.getTime() <= Date.now()) {
-    statusText.textContent = "Choose a future date and time for your meet.";
-    return;
-  }
+  selectedMeet = meet;
 
-  meetTime = enteredDate;
-  eventTitle.textContent = enteredName;
-  eventDate.textContent = meetTime.toLocaleString(undefined, {
-    dateStyle: "full",
-    timeStyle: "short"
+  eventTitle.textContent = meet.name;
+
+  eventDate.textContent = new Date(
+    meet.date + "T12:00:00"
+  ).toLocaleDateString(undefined, {
+    dateStyle: "full"
   });
-  statusText.textContent = "Time until race day:";
+
+  if (meet.time) {
+    eventDate.textContent += " at " + meet.time;
+  }
 
   if (timerId) {
     clearInterval(timerId);
   }
 
   updateCountdown();
+
   timerId = setInterval(updateCountdown, 1000);
 });
 
 function updateCountdown() {
-  if (!meetTime) return;
+  if (!selectedMeet) return;
 
-  const difference = meetTime.getTime() - Date.now();
+  const now = new Date();
 
-  if (difference <= 0) {
-    Object.values(timeFields).forEach((field) => {
-      field.textContent = "00";
-    });
-    statusText.textContent = "It's meet time! Good luck!";
-    clearInterval(timerId);
-    timerId = null;
-    return;
+  // If the meet time is known, count down to the exact time.
+  if (selectedMeet.time) {
+
+    const target = new Date(
+      selectedMeet.date + "T" +
+      selectedMeet.time + ":00"
+    );
+
+    const difference = target - now;
+
+    if (difference <= 0) {
+      statusText.textContent =
+        "It's meet time! Good luck!";
+
+      clearInterval(timerId);
+      return;
+    }
+
+    const totalSeconds =
+      Math.floor(difference / 1000);
+
+    timeFields.days.textContent =
+      Math.floor(totalSeconds / 86400);
+
+    timeFields.hours.textContent =
+      Math.floor((totalSeconds % 86400) / 3600);
+
+    timeFields.minutes.textContent =
+      Math.floor((totalSeconds % 3600) / 60);
+
+    timeFields.seconds.textContent =
+      totalSeconds % 60;
+
+    statusText.textContent =
+      "Time until race day:";
+
+  } else {
+
+    // For meets without a confirmed start time,
+    // display the number of calendar days remaining.
+
+    const today = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+    const meetDay = new Date(
+      selectedMeet.date + "T00:00:00"
+    );
+
+    const daysRemaining = Math.ceil(
+      (meetDay - today) / 86400000
+    );
+
+    if (daysRemaining < 0) {
+      statusText.textContent =
+        "This meet has already taken place.";
+
+      return;
+    }
+
+    timeFields.days.textContent =
+      daysRemaining;
+
+    timeFields.hours.textContent = "--";
+    timeFields.minutes.textContent = "--";
+    timeFields.seconds.textContent = "--";
+
+    statusText.textContent =
+      "Days until the meet. Start time not yet provided.";
   }
-
-  const secondsTotal = Math.floor(difference / 1000);
-  const days = Math.floor(secondsTotal / 86400);
-  const hours = Math.floor((secondsTotal % 86400) / 3600);
-  const minutes = Math.floor((secondsTotal % 3600) / 60);
-  const seconds = secondsTotal % 60;
-
-  timeFields.days.textContent = String(days).padStart(2, "0");
-  timeFields.hours.textContent = String(hours).padStart(2, "0");
-  timeFields.minutes.textContent = String(minutes).padStart(2, "0");
-  timeFields.seconds.textContent = String(seconds).padStart(2, "0");
 }
+

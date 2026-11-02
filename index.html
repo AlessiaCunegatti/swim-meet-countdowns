@@ -3,28 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Swim Meet Countdown</title>
+  <title>Swimming Meet Countdown</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <main class="container">
-    <p class="eyebrow">SWIM &amp; DIVE</p>
-    <h1>Meet Countdown</h1>
-    <p class="intro">Get ready for race day. Add your next meet below.</p>
+    <h1>Swimming Meet Countdown</h1>
+    <p class="intro">Choose a meet and see how much time is left!</p>
 
-<form id="meet-form" class="form">
-  <label for="meet-name">Choose your next meet</label>
+    <label for="meet-name">Select a swim meet:</label>
 
-  <select id="meet-name" required>
-    <option value="">Select a meet</option>
-    <option value="tyr">TYR '85 Invite</option>
-    <option value="gs">Georgia Southern</option>
-    <option value="queens">Queens (Diving)</option>
-    <option value="gw">Gardner-Webb (Swimming)</option>
-    <option value="gsd">Georgia Southern (Diving)</option>
-    <option value="uncp">UNC Pembroke</option>
-    <option value="asun">ASUN Conference Championships</option>
-  </select>
+    <select id="meet-name">
+      <option value="">Choose a meet</option>
+      <option value="tyr">TYR '85 INVITE</option>
+      <option value="georgia-dec">Georgia Southern</option>
+      <option value="queens">Queens (Diving)</option>
+      <option value="gardner-webb">Gardner-Webb (Swimming)</option>
+      <option value="georgia-jan">Georgia Southern (Diving)</option>
+      <option value="unc-pembroke">UNC Pembroke</option>
+      <option value="asun">ASUN Conference Championships</option>
+    </select>
 
-  <button type="submit">Start countdown</button>
-</form>
+    <section id="countdown-card" class="countdown-card">
+      <h2 id="meet-title">Your next meet</h2>
+      <p id="meet-date">Select a meet to begin.</p>
+
+      <div class="countdown">
+        <div class="time-box">
+          <span id="days">0</span>
+          <p>Days</p>
+        </div>
+
+        <div class="time-box">
+          <span id="hours">00</span>
+          <p>Hours</p>
+        </div>
+
+        <div class="time-box">
+          <span id="minutes">00</span>
+          <p>Minutes</p>
+        </div>
+
+        <div class="time-box">
+          <span id="seconds">00</span>
+          <p>Seconds</p>
+        </div>
+      </div>
+
+      <p id="message" aria-live="polite">
+        Pick a meet from the dropdown above.
+      </p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
